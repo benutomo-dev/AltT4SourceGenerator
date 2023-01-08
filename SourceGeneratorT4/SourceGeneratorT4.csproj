@@ -1,0 +1,54 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <IsRoslynComponent>true</IsRoslynComponent>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AnalyzerLanguage>cs</AnalyzerLanguage>
+    
+    <!-- .NETstandardのアセンブリ内に.NETFramework版と.NET6版のアセンブリを埋め込むために、SourceGeneratorT4Core.csprojを異なるターゲットフレームワークでビルドすることによって発生するターゲットフレームワークの互換性に関する警告を抑止 -->
+    <NoWarn>NU1702</NoWarn>
+
+    <!-- NuGet -->
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+    <DevelopmentDependency>true</DevelopmentDependency>
+    <PackageId>Benutomo.SourceGeneratorT4</PackageId>
+    <Description>Text template source generation by T4 like syntax.</Description>
+    <PackageVersion>1.0.0-alpha2</PackageVersion>
+    <Authors>benutomo</Authors>
+    <Copyright>© benutomo.</Copyright>
+    <PackageTags>codegen;codegeneration;codegenerator;sourcegen;sourcegeneration;sourcegenerator;source;generation;t4;texttemplate</PackageTags>
+    <PackageProjectUrl>https://github.com/benutomo-dev/SourceGeneratorT4</PackageProjectUrl>
+    <RepositoryUrl>$(PackageProjectUrl)</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/roslyn4.0/cs" Visible="false" />
+    <None Update="Benutomo.SourceGeneratorT4.props" Pack="true" PackagePath="build" />
+    <None Update="Benutomo.SourceGeneratorT4.targets" Pack="true" PackagePath="build" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.Compilers" Version="4.3.1" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.3.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SourceGeneratorT4Core\SourceGeneratorT4Core.csproj" Private="true" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <EmbeddedResource Include="..\SourceGeneratorT4Core\bin\$(Configuration)\net472\SourceGeneratorT4Core.dll" LogicalName="SourceGeneratorT4Core.net472.dll" Visible="false" />
+    <EmbeddedResource Include="..\SourceGeneratorT4Core\bin\$(Configuration)\net6\SourceGeneratorT4Core.dll" LogicalName="SourceGeneratorT4Core.net6.dll" Visible="false" />
+  </ItemGroup>
+
+  <Target Name="BuildCoreAssemblies" BeforeTargets="CoreBuild">
+    <MSBuild Projects="..\SourceGeneratorT4Core\SourceGeneratorT4Core.csproj" Properties="TargetFramework=" />
+  </Target>
+
+</Project>

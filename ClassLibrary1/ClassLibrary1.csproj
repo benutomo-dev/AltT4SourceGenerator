@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\SourceGeneratorT4\Benutomo.SourceGeneratorT4.props"/>
+
+  <PropertyGroup>
+    <TargetFrameworks>net48;net6.0</TargetFrameworks>
+    <!--<OutputType>Exe</OutputType>-->
+    <LangVersion>latest</LangVersion>
+    <!--<ImplicitUsings>enable</ImplicitUsings>-->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SourceGeneratorT4\SourceGeneratorT4.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <Import Project="..\SourceGeneratorT4\Benutomo.SourceGeneratorT4.targets"/>
+
+</Project>

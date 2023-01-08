@@ -1,0 +1,11 @@
+﻿<#@ import namespace="System.Collections.Generic" #>
+
+// included.
+
+namespace Yyy
+{
+    public class Zzz
+    {
+        public static int X() => 9;
+    }
+}

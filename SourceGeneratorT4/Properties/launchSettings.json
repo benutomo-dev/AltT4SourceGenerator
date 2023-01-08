@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "SourceGeneratorT4": {
+      "commandName": "DebugRoslynComponent",
+      "targetProject": "..\\ClassLibrary1\\ClassLibrary1.csproj"
+    }
+  }
+}
