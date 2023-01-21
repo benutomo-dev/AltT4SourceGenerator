@@ -1,0 +1,13 @@
+﻿<#@ import namespace="System.Collections.Generic" #>
+
+// included.
+
+<#@ include file="TextFile1.ttinc" once="true" #>
+
+namespace Yyy
+{
+    public class Zzz
+    {
+        public static int X() => 9;
+    }
+}
