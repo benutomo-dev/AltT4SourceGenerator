@@ -57,7 +57,7 @@ namespace TemplateSamples {
 
 なお、AltT4SourceGeneratorでクラス機能ブロック(`<#+ member_difinition #>`)を使用することはできません。
 
-### ディレクティブのサポートについて
+## ディレクティブのサポートについて
 
 T4では`<#@ DirectiveName [AttributeName = "AttributeValue"] ... #>`のような記法でコード生成に関する動作のカスタマイズなどが可能となっています。
 AltT4SourceGeneratorでは、以下のディレクティブをサポートしています。
@@ -88,6 +88,17 @@ AltT4SourceGeneratorはコンパイラの中でプロジェクトに含まれる
 2. コード生成ソースをコンパイルしソース生成用アセンブリを生成<br>(自分自身が呼び出されているコンパイルプロセスとは別の独立したコンパイルを行う)
 3. ソース生成用アセンブリを実行し`.sgtt`に対する最終的な生成結果となるソースコードを生成
 4. 生成したソースコードを元のコンパイルプロセスのソースコードファイルとして登録
+
+## コード生成時のカルチャ
+
+AltT4SourceGeneratorのコード生成時のデフォルトのカルチャはInvariantCultureとなります。
+カルチャを指定する場合は`.csproj`に以下のような設定を追加します。
+
+```xml
+  <PropertyGroup>
+    <AltT4SourceGeneratorDefaultCulture>ja_JP</AltT4SourceGeneratorDefaultCulture>
+  </PropertyGroup>
+```
 
 ## コード生成が実行されるときの.NETランタイムについて
 
