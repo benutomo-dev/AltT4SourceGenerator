@@ -1,18 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <Import Project="..\AltT4SourceGenerator\Benutomo.AltT4SourceGenerator.props"/>
+  <Import Project="..\AltT4SourceGenerator\Benutomo.AltT4SourceGenerator.props" />
 
   <PropertyGroup>
     <TargetFrameworks>net48;net6.0</TargetFrameworks>
     <!--<OutputType>Exe</OutputType>-->
     <LangVersion>latest</LangVersion>
     <!--<ImplicitUsings>enable</ImplicitUsings>-->
+    <AltT4SourceGeneratorDefaultCulture>ja_JP</AltT4SourceGeneratorDefaultCulture>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\AltT4SourceGenerator\AltT4SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
-  <Import Project="..\AltT4SourceGenerator\Benutomo.AltT4SourceGenerator.targets"/>
+  <Import Project="..\AltT4SourceGenerator\Benutomo.AltT4SourceGenerator.targets" />
 
 </Project>

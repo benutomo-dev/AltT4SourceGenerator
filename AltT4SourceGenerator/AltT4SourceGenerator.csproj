@@ -7,7 +7,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <AnalyzerLanguage>cs</AnalyzerLanguage>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <AssemblyVersion>1.1.0.0</AssemblyVersion>
     
     <!-- .NETstandardのアセンブリ内に.NETFramework版と.NET6版のアセンブリを埋め込むために、SourceGeneratorT4Core.csprojを異なるターゲットフレームワークでビルドすることによって発生するターゲットフレームワークの互換性に関する警告を抑止 -->
     <NoWarn>NU1702</NoWarn>
@@ -18,7 +18,7 @@
     <DevelopmentDependency>true</DevelopmentDependency>
     <PackageId>Benutomo.AltT4SourceGenerator</PackageId>
     <Description>Design-time text template source generation by T4 like syntax.</Description>
-    <PackageVersion>1.0.1</PackageVersion>
+    <PackageVersion>1.1.0</PackageVersion>
     <Authors>benutomo</Authors>
     <Copyright>© benutomo.</Copyright>
     <PackageTags>codegen;codegeneration;codegenerator;sourcegen;sourcegeneration;sourcegenerator;source;generation;t4;texttemplate</PackageTags>

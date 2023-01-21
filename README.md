@@ -9,7 +9,7 @@ AltT4SourceGeneratorはT4の構文でデザイン時ソース生成を行うこ�
 プロジェクトの`.csproj`に以下の`PackageReference`を追加します。
 
 ```xml
-<PackageReference Include="Benutomo.AltT4SourceGenerator" Version="1.0.1" PrivateAssets="true" />
+<PackageReference Include="Benutomo.AltT4SourceGenerator" Version="1.1.0" PrivateAssets="true" />
 ```
 
 ### 基本的な使用方法

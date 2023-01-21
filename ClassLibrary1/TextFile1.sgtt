@@ -1,11 +1,13 @@
-﻿<#@ import namespace="System.Text" #>
-
-using  System ;
-
+﻿using System;
+// <#= DateTime.Now #>
+// <#= 1.00001 #>
+<#@ import namespace="System.Text" #>
 <#@ include file="TextFile1.ttinc" once="true" #>
 <#@ include file="TextFile1.ttinc" once="true" #>
 <#@ AppendGeneraterSource #>
 <#@ AppendReferenceAssemblies #>
+
+
 
 namespace Xxx
 {

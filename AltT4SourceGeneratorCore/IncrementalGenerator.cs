@@ -1,15 +1,13 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Emit;
 using Microsoft.CodeAnalysis.Text;
 using System.Collections.Immutable;
 using System.Diagnostics;
-using System.Globalization;
-using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using static System.Collections.Specialized.BitVector32;
 
 namespace AltT4SourceGeneratorCore
 {
@@ -30,6 +28,8 @@ namespace AltT4SourceGeneratorCore
             Expression,
             Directive,
         }
+
+        private record RegisterSourceOutputArgs(AdditionalText textTemplateText, int number, ILookup<string, AdditionalText> includes, ParseOptions parseOptions, Compilation compilation, string? culture);
 
         private record TemplateSection(TextKind kind, string file, int lineNumber, int columnNumer, string content);
 
@@ -59,7 +59,8 @@ namespace AltT4SourceGeneratorCore
                 .Select(Selecter)
                 .Combine(context.ParseOptionsProvider)
                 .Combine(context.CompilationProvider)
-                .Select((v, ct) => (v.Left.Left.textTemplateText, v.Left.Left.number, v.Left.Left.includes, v.Left.Right, v.Right))
+                .Combine(context.AnalyzerConfigOptionsProvider.Select(ExtractCultureName))
+                .Select((v, ct) => new RegisterSourceOutputArgs(v.Left.Left.Left.textTemplateText, v.Left.Left.Left.number, v.Left.Left.Left.includes, v.Left.Left.Right, v.Left.Right, v.Right))
                 ;
 
             context.RegisterSourceOutput(source, DoRegisterSourceOutput);
@@ -68,6 +69,18 @@ namespace AltT4SourceGeneratorCore
         private static bool IsTextTemplate(AdditionalText additionalText) => additionalText.Path.EndsWith(TextTemplateFileExtension, StringComparison.OrdinalIgnoreCase);
 
         private static bool IsIncludeFile(AdditionalText additionalText) => additionalText.Path.EndsWith(IncludeFileExtension, StringComparison.OrdinalIgnoreCase);
+
+        private static string? ExtractCultureName(AnalyzerConfigOptionsProvider options, CancellationToken cancellationToken)
+        {
+            if (options.GlobalOptions.TryGetValue("build_property.AltT4SourceGeneratorDefaultCulture", out var cultureName))
+            {
+                return cultureName.Trim();
+            }
+            else
+            {
+                return null;
+            }
+        }
 
         private (ImmutableArray<(AdditionalText additionalText, string fileName)> textTemplates, ILookup<string, AdditionalText> includeFileLookup) ToFileNameLookup(ImmutableArray<AdditionalText> args, CancellationToken cancellationToken)
         {
@@ -110,7 +123,7 @@ namespace AltT4SourceGeneratorCore
             }
         }
 
-        private void DoRegisterSourceOutput(SourceProductionContext context, (AdditionalText textTemplateText, int number, ILookup<string, AdditionalText> includes, ParseOptions parseOptions, Compilation compilation) args)
+        private void DoRegisterSourceOutput(SourceProductionContext context, RegisterSourceOutputArgs args)
         {
             var templateSourceText = args.textTemplateText.GetText(context.CancellationToken);
 
@@ -146,7 +159,7 @@ namespace AltT4SourceGeneratorCore
                 return;
             }
 
-            WriteMainContent(templateTextSections, genClassSourceBuilder);
+            WriteMainContent(templateTextSections, genClassSourceBuilder, args.culture);
 
             var memoryStream = new MemoryStream();
 
@@ -441,7 +454,7 @@ namespace AltT4SourceGeneratorCore
             }
 
             // ローカル関数
-            static void WriteMainContent(List<TemplateSection> templateTextSections, StringBuilder genClassSourceBuilder)
+            static void WriteMainContent(List<TemplateSection> templateTextSections, StringBuilder genClassSourceBuilder, string? colutureName)
             {
                 genClassSourceBuilder.AppendLine($"using System; // default");
                 genClassSourceBuilder.AppendLine($"using System.Collections.Generic; // default");
@@ -451,6 +464,32 @@ namespace AltT4SourceGeneratorCore
                 genClassSourceBuilder.AppendLine($"    public class {ClassName} {{");
                 genClassSourceBuilder.AppendLine($"        public string {MethodName}() {{");
                 genClassSourceBuilder.AppendLine($"            var builder = new global::System.Text.StringBuilder();");
+                if (string.IsNullOrWhiteSpace(colutureName))
+                {
+                    genClassSourceBuilder.AppendLine("            System.Globalization.CultureInfo.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;");
+                    genClassSourceBuilder.AppendLine("            System.Globalization.CultureInfo.CurrentUICulture = System.Globalization.CultureInfo.InvariantCulture;");
+                }
+                else
+                {
+                    genClassSourceBuilder.AppendLine($@"            {{");
+                    genClassSourceBuilder.AppendLine($@"                System.Globalization.CultureInfo culture;");
+                    genClassSourceBuilder.AppendLine($@"                try {{");
+                    genClassSourceBuilder.AppendLine($@"                    culture = System.Globalization.CultureInfo.GetCultureInfo(""{colutureName}"");");
+                    genClassSourceBuilder.AppendLine($@"                }}");
+                    genClassSourceBuilder.AppendLine($@"                catch {{");
+                    genClassSourceBuilder.AppendLine($@"                    culture = null;");
+                    genClassSourceBuilder.AppendLine($@"                }}");
+                    genClassSourceBuilder.AppendLine($@"                if (culture is null) {{");
+                    genClassSourceBuilder.AppendLine($@"                    System.Globalization.CultureInfo.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;");
+                    genClassSourceBuilder.AppendLine($@"                    System.Globalization.CultureInfo.CurrentUICulture = System.Globalization.CultureInfo.InvariantCulture;");
+                    genClassSourceBuilder.AppendLine($@"                    builder.AppendLine(""#warning The valid culture could not get from {colutureName}. This soruce is generated using InvalidCulture."");");
+                    genClassSourceBuilder.AppendLine($@"                }}");
+                    genClassSourceBuilder.AppendLine($@"                else {{");
+                    genClassSourceBuilder.AppendLine($@"                    System.Globalization.CultureInfo.CurrentCulture = culture;");
+                    genClassSourceBuilder.AppendLine($@"                    System.Globalization.CultureInfo.CurrentUICulture = culture;");
+                    genClassSourceBuilder.AppendLine($@"                }}");
+                    genClassSourceBuilder.AppendLine($@"            }}");
+                }
                 foreach (var templateTextSection in templateTextSections)
                 {
                     switch (templateTextSection.kind)
@@ -715,13 +754,13 @@ namespace AltT4SourceGeneratorCore
             }
 
             // ローカル関数
-            static string MakeCompileFailedFallbackSourceCodeAndReportRedirectedDiagnostic(SourceProductionContext context, (AdditionalText additionalText, int number, ILookup<string, AdditionalText> includes, ParseOptions parseOptions, Compilation compilation) args, string genClassSourceText, SyntaxTree syntaxTree, EmitResult emitResult)
+            static string MakeCompileFailedFallbackSourceCodeAndReportRedirectedDiagnostic(SourceProductionContext context, RegisterSourceOutputArgs args, string genClassSourceText, SyntaxTree syntaxTree, EmitResult emitResult)
             {
                 string sourceStringText;
                 var stringBuilder = new StringBuilder();
                 AppendAsCommentedText(stringBuilder, genClassSourceText);
 
-                var textTemplateFileName = Path.GetFileName(args.additionalText.Path);
+                var textTemplateFileName = Path.GetFileName(args.textTemplateText.Path);
 
                 stringBuilder.AppendLine();
                 stringBuilder.AppendLine($"#error {textTemplateFileName}から生成した出力アセンブリのコンパイルに失敗しました");
@@ -778,10 +817,10 @@ namespace AltT4SourceGeneratorCore
 
                     Diagnostic diagnostic;
 
-                    if (mappedLineSpan.HasMappedPath && mappedLineSpan.Path == args.additionalText.Path)
+                    if (mappedLineSpan.HasMappedPath && mappedLineSpan.Path == args.textTemplateText.Path)
                     {
                         TextSpan redirectedTextSpan = default;
-                        var text = args.additionalText.GetText(context.CancellationToken);
+                        var text = args.textTemplateText.GetText(context.CancellationToken);
                         if (text is not null && mappedLineSpan.Span.Start.Line < text.Lines.Count)
                         {
                             redirectedTextSpan = new TextSpan(text.Lines[mappedLineSpan.Span.Start.Line].Start + mappedLineSpan.Span.Start.Character, origianlDiagnostic.Location.SourceSpan.Length);
@@ -798,7 +837,7 @@ namespace AltT4SourceGeneratorCore
                             origianlDiagnostic.Descriptor.Title,
                             origianlDiagnostic.Descriptor.Description,
                             origianlDiagnostic.Descriptor.HelpLinkUri,
-                            Location.Create(args.additionalText.Path, redirectedTextSpan, mappedLineSpan.Span)
+                            Location.Create(args.textTemplateText.Path, redirectedTextSpan, mappedLineSpan.Span)
                             );
                     }
                     else
@@ -816,7 +855,7 @@ namespace AltT4SourceGeneratorCore
                             origianlDiagnostic.Descriptor.Title,
                             origianlDiagnostic.Descriptor.Description,
                             origianlDiagnostic.Descriptor.HelpLinkUri,
-                            Location.Create(args.additionalText.Path, default, default)
+                            Location.Create(args.textTemplateText.Path, default, default)
                             );
                     }
                     context.ReportDiagnostic(diagnostic);
