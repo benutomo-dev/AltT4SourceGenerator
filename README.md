@@ -17,7 +17,7 @@ AltT4SourceGeneratorはT4の構文でデザイン時ソース生成を行うこ�
 拡張子が`.sgtt`のファイルがAltT4SourceGeneratorのテキストテンプレートファイルとして扱われます。
 プロジェクトフォルダに含まれる`.sgtt`は自動的にAdditionalFilesに取り込まれます。`.csproj`に明示的な記載は不要です。
 
-基本的な構文はT4を踏襲しています。コードの断片は`<# code #>`で埋め込むことが可能です。また、式の評価結果も`<#= expression #>`で埋め込み可能です。
+基本的な構文はT4を踏襲しています。コードの断片は`<# statement_faragment #>`で埋め込むことが可能です。また、式の評価結果も`<#= expression #>`で埋め込み可能です。
 
 例えば、以下のファイルを`Sample.sgtt`として配置しすると
 
@@ -54,6 +54,8 @@ namespace TemplateSamples {
     }
 }
 ```
+
+なお、AltT4SourceGeneratorでクラス機能ブロック(`<#+ member_difinition #>`)を使用することはできません。
 
 ### ディレクティブのサポートについて
 
