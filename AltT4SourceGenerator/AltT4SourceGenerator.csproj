@@ -17,8 +17,8 @@
     <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
     <DevelopmentDependency>true</DevelopmentDependency>
     <PackageId>Benutomo.AltT4SourceGenerator</PackageId>
-    <Description>Text template source generation by T4 like syntax.</Description>
-    <PackageVersion>1.0.0</PackageVersion>
+    <Description>Design-time text template source generation by T4 like syntax.</Description>
+    <PackageVersion>1.0.1</PackageVersion>
     <Authors>benutomo</Authors>
     <Copyright>© benutomo.</Copyright>
     <PackageTags>codegen;codegeneration;codegenerator;sourcegen;sourcegeneration;sourcegenerator;source;generation;t4;texttemplate</PackageTags>
