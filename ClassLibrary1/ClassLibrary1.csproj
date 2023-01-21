@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <Import Project="..\SourceGeneratorT4\Benutomo.SourceGeneratorT4.props"/>
+  <Import Project="..\AltT4SourceGenerator\Benutomo.AltT4SourceGenerator.props"/>
 
   <PropertyGroup>
     <TargetFrameworks>net48;net6.0</TargetFrameworks>
@@ -10,9 +10,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SourceGeneratorT4\SourceGeneratorT4.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\AltT4SourceGenerator\AltT4SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
-  <Import Project="..\SourceGeneratorT4\Benutomo.SourceGeneratorT4.targets"/>
+  <Import Project="..\AltT4SourceGenerator\Benutomo.AltT4SourceGenerator.targets"/>
 
 </Project>

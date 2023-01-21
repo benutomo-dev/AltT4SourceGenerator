@@ -1,6 +1,6 @@
-# SourceGeneratorT4
+# AltT4SourceGenerator
 
-SourceGeneratorT4はT4っぽい構文でソース生成を行うことができるソースジェネレータです。
+AltT4SourceGeneratorはT4っぽい構文でソース生成を行うことができるソースジェネレータです。
 
 ## 使い方
 
@@ -9,12 +9,12 @@ SourceGeneratorT4はT4っぽい構文でソース生成を行うことができ�
 プロジェクトの`.csproj`に以下の`PackageReference`を追加します。
 
 ```xml
-<PackageReference Include="Benutomo.SourceGeneratorT4" Version="1.0.0-alpha2" PrivateAssets="true" />
+<PackageReference Include="Benutomo.AltT4SourceGenerator" Version="1.0.0" PrivateAssets="true" />
 ```
 
 ### 基本的な使用方法
 
-拡張子が`.sgtt`のファイルがSourceGeneratorT4のテキストテンプレートファイルとして扱われます。
+拡張子が`.sgtt`のファイルがAltT4SourceGeneratorのテキストテンプレートファイルとして扱われます。
 プロジェクトフォルダに含まれる`.sgtt`は自動的にAdditionalFilesに取り込まれます。`.csproj`に明示的な記載は不要です。
 
 基本的な構文はT4を踏襲しています。コードの断片は`<# code #>`で埋め込むことが可能です。また、式の評価結果も`<#= expression #>`で埋め込み可能です。
@@ -58,7 +58,7 @@ namespace TemplateSamples {
 ### ディレクティブのサポートについて
 
 T4では`<#@ DirectiveName [AttributeName = "AttributeValue"] ... #>`のような記法でコード生成に関する動作のカスタマイズなどが可能となっています。
-SourceGeneratorT4では、以下のディレクティブをサポートしています。
+AltT4SourceGeneratorでは、以下のディレクティブをサポートしています。
 
 - import
 - include
@@ -67,7 +67,7 @@ SourceGeneratorT4では、以下のディレクティブをサポートしてい
 
 importはT4と同じように機能します。
 
-includeもT4とほぼ同じように機能します。ただし、SourceGeneratorT4のincludeは相対パスで自由なファイルを参照するのではなく、
+includeもT4とほぼ同じように機能します。ただし、AltT4SourceGeneratorのincludeは相対パスで自由なファイルを参照するのではなく、
 プロジェクト内に配置されている拡張子が`.ttinc`のファイルのファイル名(※1)を指定して参照します。`.ttinc`ファイルはそれ自体はテキストテンプレートとして機能しませんが、
 `.sgtt`ファイルから取り込まれているときは`.sgtt`と同じいように機能して取り込みもとのincludeディレクティブがおかれていた場所に自身の生成結果を挿入します。
 
@@ -77,10 +77,10 @@ AppendReferenceAssembliesはデバッグ・調査用のオプションです。�
 
 AppendGeneraterSourceはデバッグ・調査用のオプションです。出力ファイルの後方にテンプレートから作られた内部的なコード生成プログラム自身のソースをコメント行で追記します。
 
-## SourceGeneratorT4のコード生成が実行される仕組み
+## AltT4SourceGeneratorのコード生成が実行される仕組み
 
-SourceGeneratorT4は既出の通りRoslynコンパイラのソースジェネレータとして実装されています。
-SourceGeneratorT4はコンパイラの中でプロジェクトに含まれる`.sgtt`に対して以下のように動作します。
+AltT4SourceGeneratorは既出の通りRoslynコンパイラのソースジェネレータとして実装されています。
+AltT4SourceGeneratorはコンパイラの中でプロジェクトに含まれる`.sgtt`に対して以下のように動作します。
 
 1. `.sgtt`をC#のコード生成ソースに変換
 2. それを自身が呼び出されているコンパイルプロセスとは別の独自のソース生成用アセンブリとしてコンパイル
@@ -89,12 +89,12 @@ SourceGeneratorT4はコンパイラの中でプロジェクトに含まれる`.s
 
 ## コード生成が実行されるときの.NETランタイムについて
 
-ソース生成用アセンブリの実行はコンパイラが動作しているプロセス内で実行されます。SourceGeneratorT4がコンパイルのために新しいプロセスを作ることはありません。
-そのため、SourceGeneratorT4のコード生成が行われるときの.NETランタイムはコンパイラが実行されている.NETランタイムとなります。
+ソース生成用アセンブリの実行はコンパイラが動作しているプロセス内で実行されます。AltT4SourceGeneratorがコンパイルのために新しいプロセスを作ることはありません。
+そのため、AltT4SourceGeneratorのコード生成が行われるときの.NETランタイムはコンパイラが実行されている.NETランタイムとなります。
 例えば、Visual Studioのインクリメンタルコンパイルから実行されている場合は`.NET Framework`のランタイムで実行され、dotnetコマンドのビルドでは`.NET`のランタイムで実行されます。
 この性質により、テキストテンプレートのコード部分の書き方によってはdotnetコマンドではビルドできる一方で、Visual Studio上ではエラーになるなどの現象が発生する場合があります。
 
 ## インクリメンタルコンパイルなどに対する対応
 
-SourceGeneratorT4はコード生成実行後に不要となったソース生成用アセンブリを都度プロセスからアンロードします。
+AltT4SourceGeneratorはコード生成実行後に不要となったソース生成用アセンブリを都度プロセスからアンロードします。
 そのため、Visual Studioのインクリメンタルコンパイルなどで使用されても、不要になったソース生成用アセンブリがランタイム内に不必要に残留することはありません。

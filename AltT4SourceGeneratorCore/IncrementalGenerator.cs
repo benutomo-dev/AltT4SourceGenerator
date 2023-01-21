@@ -11,7 +11,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using static System.Collections.Specialized.BitVector32;
 
-namespace SourceGeneratorT4Core
+namespace AltT4SourceGeneratorCore
 {
     [Generator(LanguageNames.CSharp)]
     public class IncrementalGenerator : IIncrementalGenerator
@@ -837,7 +837,7 @@ namespace SourceGeneratorT4Core
 
                     try
                     {
-                        var appDomain = AppDomain.CreateDomain("SourceGeneratorT4.Temporary", null, AppDomain.CurrentDomain.SetupInformation);
+                        var appDomain = AppDomain.CreateDomain("AltT4SourceGenerator.Temporary", null, AppDomain.CurrentDomain.SetupInformation);
 
                         try
                         {
@@ -877,7 +877,7 @@ namespace SourceGeneratorT4Core
                         File.Delete(tempSource);
                     }
 #else
-                    var assemblyLoadContext = new System.Runtime.Loader.AssemblyLoadContext("SourceGeneratorT4.Temporary", isCollectible: true);
+                    var assemblyLoadContext = new System.Runtime.Loader.AssemblyLoadContext("AltT4SourceGenerator.Temporary", isCollectible: true);
                     try
                     {
                         var assembly = assemblyLoadContext.LoadFromStream(memoryStream);

@@ -3,11 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33205.214
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SourceGeneratorT4", "SourceGeneratorT4\SourceGeneratorT4.csproj", "{4091FDE8-1CC1-4B8F-8BD5-BF8DAE18CBA3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AltT4SourceGenerator", "AltT4SourceGenerator\AltT4SourceGenerator.csproj", "{4091FDE8-1CC1-4B8F-8BD5-BF8DAE18CBA3}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClassLibrary1", "ClassLibrary1\ClassLibrary1.csproj", "{2DDE1FC6-64A9-435E-ACF3-C333484CDBA3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SourceGeneratorT4Core", "SourceGeneratorT4Core\SourceGeneratorT4Core.csproj", "{51E47CC8-D03B-4CE9-8CB4-AE2D3C966B33}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AltT4SourceGeneratorCore", "AltT4SourceGeneratorCore\AltT4SourceGeneratorCore.csproj", "{51E47CC8-D03B-4CE9-8CB4-AE2D3C966B33}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp1", "ConsoleApp1\ConsoleApp1.csproj", "{AB9DF747-5D17-4B46-8CB2-B850E22026AF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{51E47CC8-D03B-4CE9-8CB4-AE2D3C966B33}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{51E47CC8-D03B-4CE9-8CB4-AE2D3C966B33}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{51E47CC8-D03B-4CE9-8CB4-AE2D3C966B33}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AB9DF747-5D17-4B46-8CB2-B850E22026AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB9DF747-5D17-4B46-8CB2-B850E22026AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AB9DF747-5D17-4B46-8CB2-B850E22026AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AB9DF747-5D17-4B46-8CB2-B850E22026AF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

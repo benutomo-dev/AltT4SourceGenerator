@@ -2,7 +2,7 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-namespace SourceGeneratorT4
+namespace AltT4SourceGenerator
 {
     [Generator(LanguageNames.CSharp)]
     public class IncrementalGenerator : IIncrementalGenerator
@@ -17,11 +17,11 @@ namespace SourceGeneratorT4
 
             if (RuntimeInformation.FrameworkDescription.StartsWith(".NET Framework"))
             {
-                name = "SourceGeneratorT4Core.net472.dll";
+                name = "AltT4SourceGeneratorCore.net472.dll";
             }
             else
             {
-                name = "SourceGeneratorT4Core.net6.dll";
+                name = "AltT4SourceGeneratorCore.net6.dll";
             }
 
             using var resourceStream = typeof(IncrementalGenerator).Assembly.GetManifestResourceStream(name);
@@ -33,7 +33,7 @@ namespace SourceGeneratorT4
 
             s_coreAssembly = Assembly.Load(rawAssembly);
 
-            s_incrementalGeneratorType = s_coreAssembly.GetType("SourceGeneratorT4Core.IncrementalGenerator");
+            s_incrementalGeneratorType = s_coreAssembly.GetType("AltT4SourceGeneratorCore.IncrementalGenerator");
         }
 
         public IncrementalGenerator()

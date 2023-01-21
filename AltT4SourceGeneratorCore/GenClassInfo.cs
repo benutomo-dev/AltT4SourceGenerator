@@ -1,4 +1,4 @@
-﻿namespace SourceGeneratorT4Core
+﻿namespace AltT4SourceGeneratorCore
 {
     public class GenClassInfo
     {
