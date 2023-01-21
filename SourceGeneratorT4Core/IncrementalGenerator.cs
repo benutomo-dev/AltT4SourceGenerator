@@ -120,7 +120,8 @@ namespace SourceGeneratorT4Core
             }
 
             var templateTextSections = new List<TemplateSection>();
-            var includedSet = new HashSet<AdditionalText>();
+            var inclduedSetForCyclicIncludeCheck = ImmutableHashSet<AdditionalText>.Empty;
+            var inclduedSetForOnceCheck = new HashSet<AdditionalText>();
             var invalidDirectiveBuilder = new StringBuilder();
             var genClassSourceBuilder = new StringBuilder();
 
@@ -128,7 +129,8 @@ namespace SourceGeneratorT4Core
                 templateSourceText,
                 args.textTemplateText.Path,
                 templateTextSections,
-                includedSet,
+                inclduedSetForCyclicIncludeCheck,
+                inclduedSetForOnceCheck,
                 args.includes,
                 invalidDirectiveBuilder,
                 genClassSourceBuilder,
@@ -211,7 +213,8 @@ namespace SourceGeneratorT4Core
                 SourceText templateSourceText,
                 string file,
                 List<TemplateSection> templateTextSections,
-                HashSet<AdditionalText> includedSet,
+                ImmutableHashSet<AdditionalText> inclduedSetForCyclicIncludeCheck,
+                HashSet<AdditionalText> inclduedSetForOnceCheck,
                 ILookup<string, AdditionalText> includes,
                 StringBuilder invalidDirectiveBuilder,
                 StringBuilder genClassSourceBuilder,
@@ -248,7 +251,7 @@ namespace SourceGeneratorT4Core
 
                     if (directiveContent.IsEmpty)
                     {
-                        WriteInvalidDirectiveComment(genClassSourceBuilder, section, "UnknownDirective");
+                        WriteInvalidDirectiveComment(genClassSourceBuilder, file, section, "UnknownDirective");
                         continue;
                     }
 
@@ -264,7 +267,19 @@ namespace SourceGeneratorT4Core
                     }
                     else if (directiveFirstToken.SequenceEqual("include".AsSpan()))
                     {
-                        HandleIncludeDirective(directiveArgsContent, section, templateTextSections, includedSet, includes, invalidDirectiveBuilder, genClassSourceBuilder, ref appendReferenceAssemblies, ref appendGeneraterSource);
+                        HandleIncludeDirective(
+                            directiveArgsContent,
+                            file,
+                            section,
+                            templateTextSections,
+                            inclduedSetForCyclicIncludeCheck,
+                            inclduedSetForOnceCheck,
+                            includes,
+                            invalidDirectiveBuilder,
+                            genClassSourceBuilder,
+                            ref appendReferenceAssemblies,
+                            ref appendGeneraterSource
+                            );
                     }
                     else if (directiveFirstToken.SequenceEqual("AppendReferenceAssemblies".AsSpan()))
                     {
@@ -276,7 +291,7 @@ namespace SourceGeneratorT4Core
                     }
                     else
                     {
-                        WriteInvalidDirectiveComment(invalidDirectiveBuilder, section, "UnknownDirective");
+                        WriteInvalidDirectiveComment(invalidDirectiveBuilder, file, section, "UnknownDirective");
                     }
                 }
             }
@@ -294,7 +309,7 @@ namespace SourceGeneratorT4Core
 
                 if (!importArgsContent.StartsWith(argPrefix.AsSpan()) || !importArgsContent.EndsWith(argSuffix.AsSpan()))
                 {
-                    WriteInvalidDirectiveComment(invalidDirectiveBuilder, section, "InvalidImportDirective");
+                    WriteInvalidDirectiveComment(invalidDirectiveBuilder, file, section, "InvalidImportDirective");
                     return;
                 }
 
@@ -312,9 +327,11 @@ namespace SourceGeneratorT4Core
             // ローカル関数
             static void HandleIncludeDirective(
                 ReadOnlySpan<char> directiveArgsContent,
+                string file,
                 ParseStateSection section,
                 List<TemplateSection> templateTextSections,
-                HashSet<AdditionalText> includedSet,
+                ImmutableHashSet<AdditionalText> inclduedSetForCyclicIncludeCheck,
+                HashSet<AdditionalText> inclduedSetForOnceCheck,
                 ILookup<string, AdditionalText> includes,
                 StringBuilder invalidDirectiveBuilder,
                 StringBuilder genClassSourceBuilder,
@@ -329,7 +346,7 @@ namespace SourceGeneratorT4Core
 
                 if (includeArgsContent.IsEmpty)
                 {
-                    WriteInvalidDirectiveComment(invalidDirectiveBuilder, section, "InvalidIncludeDirective");
+                    WriteInvalidDirectiveComment(invalidDirectiveBuilder, file, section, "InvalidIncludeDirective");
                     return;
                 }
 
@@ -337,7 +354,7 @@ namespace SourceGeneratorT4Core
 
                 if (!match.Success)
                 {
-                    WriteInvalidDirectiveComment(invalidDirectiveBuilder, section, "InvalidIncludeDirective");
+                    WriteInvalidDirectiveComment(invalidDirectiveBuilder, file, section, "InvalidIncludeDirective");
                     return;
                 }
 
@@ -346,26 +363,26 @@ namespace SourceGeneratorT4Core
 
                 if (!includeFileName.EndsWith(IncludeFileExtension))
                 {
-                    WriteInvalidDirectiveComment(invalidDirectiveBuilder, section, $@"UnsupportedExtension");
+                    WriteInvalidDirectiveComment(invalidDirectiveBuilder, file, section, $@"UnsupportedExtension");
                     return;
                 }
 
                 if (!includes.Contains(includeFileName))
                 {
-                    WriteInvalidDirectiveComment(invalidDirectiveBuilder, section, $@"IncludeFileNotFound");
+                    WriteInvalidDirectiveComment(invalidDirectiveBuilder, file, section, $@"IncludeFileNotFound");
                     return;
                 }
                 var candidateIncludeFiles = includes[includeFileName];
 
                 if (candidateIncludeFiles.Count() > 1)
                 {
-                    WriteInvalidDirectiveComment(invalidDirectiveBuilder, section, $@"IncludeFileDuplicated");
+                    WriteInvalidDirectiveComment(invalidDirectiveBuilder, file, section, $@"IncludeFileDuplicated");
                     return;
                 }
 
                 var includeFile = candidateIncludeFiles.First();
 
-                var isFirstIncludeFile = includedSet.Add(includeFile);
+                var isFirstIncludeFile = inclduedSetForOnceCheck.Add(includeFile);
 
                 if (once && !isFirstIncludeFile)
                 {
@@ -373,33 +390,52 @@ namespace SourceGeneratorT4Core
                     return;
                 }
 
+                var nextInclduedSetForCyclicIncludeCheck = inclduedSetForCyclicIncludeCheck.Add(includeFile);
+
+                if (nextInclduedSetForCyclicIncludeCheck == inclduedSetForCyclicIncludeCheck)
+                {
+                    WriteInvalidDirectiveComment(invalidDirectiveBuilder, file, section, $@"CyclicInclude");
+                    return;
+                }
+
                 var includeFileSourceText = includeFile.GetText();
                 if (includeFileSourceText is null)
                 {
-                    WriteInvalidDirectiveComment(invalidDirectiveBuilder, section, $@"MissingSourceText");
+                    WriteInvalidDirectiveComment(invalidDirectiveBuilder, file, section, $@"MissingSourceText");
                     return;
                 }
 
                 try
                 {
-                    WriteHeadContentsAndExtractTemplateSections(includeFileSourceText, includeFile.Path, templateTextSections, includedSet, includes, invalidDirectiveBuilder, genClassSourceBuilder, out var includeAppendReferenceAssemblies, out var includeAppendGeneraterSource);
+                    WriteHeadContentsAndExtractTemplateSections(
+                        includeFileSourceText,
+                        includeFile.Path,
+                        templateTextSections,
+                        nextInclduedSetForCyclicIncludeCheck,
+                        inclduedSetForOnceCheck,
+                        includes,
+                        invalidDirectiveBuilder,
+                        genClassSourceBuilder,
+                        out var includeAppendReferenceAssemblies,
+                        out var includeAppendGeneraterSource
+                        );
                     appendReferenceAssemblies = appendReferenceAssemblies || includeAppendReferenceAssemblies;
                     appendGeneraterSource = appendGeneraterSource || includeAppendGeneraterSource;
                     return;
                 }
                 catch (FileNotFoundException)
                 {
-                    WriteInvalidDirectiveComment(invalidDirectiveBuilder, section, $@"InvalidIncludeDirective ""{includeFileName}"" is not found.");
+                    WriteInvalidDirectiveComment(invalidDirectiveBuilder, file, section, $@"InvalidIncludeDirective ""{includeFileName}"" is not found.");
                     return;
                 }
                 catch (IOException)
                 {
-                    WriteInvalidDirectiveComment(invalidDirectiveBuilder, section, $@"InvalidIncludeDirective io error.");
+                    WriteInvalidDirectiveComment(invalidDirectiveBuilder, file, section, $@"InvalidIncludeDirective io error.");
                     return;
                 }
                 catch (UnauthorizedAccessException)
                 {
-                    WriteInvalidDirectiveComment(invalidDirectiveBuilder, section, $@"InvalidIncludeDirective permission error.");
+                    WriteInvalidDirectiveComment(invalidDirectiveBuilder, file, section, $@"InvalidIncludeDirective permission error.");
                     return;
                 }
             }
@@ -458,9 +494,9 @@ namespace SourceGeneratorT4Core
             }
 
             // ローカル関数
-            static void WriteInvalidDirectiveComment(StringBuilder stringBuilder, ParseStateSection directive, string label)
+            static void WriteInvalidDirectiveComment(StringBuilder stringBuilder, string file, ParseStateSection directive, string label)
             {
-                stringBuilder.AppendLine($@"// {label}({directive.lineNumber},{directive.columnNumer + 1}): {Regex.Replace(directive.content, @"\r?\n", _ => " ")}");
+                stringBuilder.AppendLine($@"// {file}({directive.lineNumber},{directive.columnNumer + 1}) [{label}]: {Regex.Replace(directive.content, @"\r?\n", _ => " ").Trim()}");
             }
 
             // ローカル関数

@@ -2,7 +2,8 @@
 
 using  System ;
 
-<#@ include file="TextFile1.ttinc" #>
+<#@ include file="TextFile1.ttinc" once="true" #>
+<#@ include file="TextFile1.ttinc" once="true" #>
 <#@ AppendGeneraterSource #>
 <#@ AppendReferenceAssemblies #>
 

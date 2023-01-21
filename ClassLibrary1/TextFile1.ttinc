@@ -2,6 +2,8 @@
 
 // included.
 
+<#@ include file="TextFile1.ttinc" once="true" #>
+
 namespace Yyy
 {
     public class Zzz
