@@ -916,7 +916,7 @@ namespace AltT4SourceGeneratorCore
             {
                 if (string.IsNullOrEmpty(text)) return;
 
-                if (stringBuilder[stringBuilder.Length - 1] != '\n')
+                if (stringBuilder.Length > 0 && stringBuilder[stringBuilder.Length - 1] != '\n')
                 {
                     stringBuilder.AppendLine();
                 }
