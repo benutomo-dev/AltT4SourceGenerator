@@ -30,8 +30,6 @@
 
   <ItemGroup>
     <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/roslyn4.0/cs" Visible="false" />
-    <None Update="Benutomo.AltT4SourceGenerator.props" Pack="true" PackagePath="build" />
-    <None Update="Benutomo.AltT4SourceGenerator.targets" Pack="true" PackagePath="build" />
   </ItemGroup>
 
   <ItemGroup>
@@ -44,8 +42,8 @@
   </ItemGroup>
   
   <ItemGroup>
-    <EmbeddedResource Include="..\AltT4SourceGeneratorCore\bin\$(Configuration)\net472\AltT4SourceGeneratorCore.dll" LogicalName="AltT4SourceGeneratorCore.net472.dll" Visible="false" />
-    <EmbeddedResource Include="..\AltT4SourceGeneratorCore\bin\$(Configuration)\net6\AltT4SourceGeneratorCore.dll" LogicalName="AltT4SourceGeneratorCore.net6.dll" Visible="false" />
+    <EmbeddedResource Include="..\bin\AltT4SourceGeneratorCore\$(Configuration)\net472\AltT4SourceGeneratorCore.dll" LogicalName="AltT4SourceGeneratorCore.net472.dll" Visible="false" />
+    <EmbeddedResource Include="..\bin\AltT4SourceGeneratorCore\$(Configuration)\net6\AltT4SourceGeneratorCore.dll" LogicalName="AltT4SourceGeneratorCore.net6.dll" Visible="false" />
   </ItemGroup>
 
   <Target Name="BuildCoreAssemblies" BeforeTargets="CoreBuild">

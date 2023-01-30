@@ -1,5 +1,4 @@
 ﻿<Project>
-
   <ItemGroup>
     <None Remove="**/*.sgtt" />
     <AdditionalFiles Include="**/*.sgtt" />
@@ -7,5 +6,4 @@
     <None Remove="**/*.ttinc" />
     <AdditionalFiles Include="**/*.ttinc" />
   </ItemGroup>
-
 </Project>

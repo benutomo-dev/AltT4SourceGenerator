@@ -1,0 +1,30 @@
+<Project>
+  
+  <!-- NuGet -->
+  <PropertyGroup Condition="'$(PackageId)' != ''">
+    <PackageId Condition="'$(Configuration)' != 'Release'">$(PackageId).$(Configuration)</PackageId>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageOutputPath>$(MSBuildThisFileDirectory)nupkg\</PackageOutputPath>
+  </PropertyGroup>
+  <ItemGroup Condition="'@(None->WithMetadataValue('Identity', 'Package.props'))' != ''">
+    <None Update="Package.props">
+      <Link>$(PackageId).props</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>false</Visible>
+    </None>
+    <None Include="$(OutDir)$(PackageId).props"  Pack="true" PackagePath="build" Visible="false" />
+    <None Include="Package.props" />
+  </ItemGroup>
+  <ItemGroup Condition="'@(None->WithMetadataValue('Identity', 'Package.targets'))' != ''">
+    <None Update="Package.targets">
+      <Link>$(PackageId).targets</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>false</Visible>
+    </None>
+    <None Include="$(OutDir)$(PackageId).targets"  Pack="true" PackagePath="build" Visible="false" />
+    <None Include="Package.targets" />
+  </ItemGroup>
+
+  <Import Project="$(MSBuildThisFileFullPath).user" Condition="Exists('$(MSBuildThisFileFullPath).user')" />
+
+</Project>
